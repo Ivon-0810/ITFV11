@@ -1,0 +1,19 @@
+# Déploiement du serveur central de synchronisation ITF sur Render.
+# IMPORTANT (V11) : DATABASE_URL doit pointer vers une base PostgreSQL
+# EXTERNE persistante (Neon, Supabase...) — PAS vers une base Postgres
+# gratuite créée directement sur Render, qui expire 30 jours après sa
+# création. Voir MIGRATION_POSTGRESQL.md pour créer une base Neon gratuite
+# et permanente en 5 minutes, puis coller son URL ici (ou dans le tableau
+# de bord Render : Environment > DATABASE_URL) au moment du déploiement.
+services:
+  - type: web
+    name: irwanetraceforest-sync
+    runtime: python
+    plan: free
+    buildCommand: "pip install -r requirements-sync.txt"
+    startCommand: "gunicorn sync_server:app --bind 0.0.0.0:$PORT"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.0
+      - key: DATABASE_URL
+        sync: false

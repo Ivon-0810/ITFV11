@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Postes{% endblock %}
+{% block content %}
+<h1>Postes & métiers <span class="badge badge-super">Super-Admin</span></h1>
+<div class="subtitle">
+  Ces intitulés apparaissent dans la liste déroulante « Poste » lors de la création
+  d'un compte, en complément du rôle système qui gère les permissions.
+</div>
+
+<div class="card">
+  <h2>Ajouter un poste</h2>
+  <form method="POST" class="inline-form">
+    <input name="nom" required placeholder="Ex : Opérateur Massicot, Chef Séchoir, Contrôleur Qualité...">
+    <button type="submit">Ajouter</button>
+  </form>
+</div>
+
+<div class="card">
+  <h2>Postes disponibles</h2>
+  <table>
+    <thead><tr><th>Nom</th><th>Créé par</th><th>Créé le</th><th></th></tr></thead>
+    <tbody>
+    {% for p in postes %}
+      <tr>
+        <td><strong>{{ p.nom }}</strong></td>
+        <td>{{ p.cree_par }}</td>
+        <td>{{ p.created_at }}</td>
+        <td>
+          <form method="POST" action="{{ url_for('supprimer_poste', poste_id=p.id) }}"
+                onsubmit="return confirm('Supprimer ce poste ? Les comptes qui l\'utilisent le perdront simplement.');">
+            <button type="submit" class="btn-danger">Supprimer</button>
+          </form>
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

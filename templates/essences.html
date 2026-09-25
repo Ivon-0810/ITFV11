@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Essences{% endblock %}
+{% block content %}
+<h1>Catalogue des essences</h1>
+<div class="subtitle">Ajoutez une essence non répertoriée — elle apparaîtra aussitôt dans toutes les listes déroulantes.</div>
+
+<div class="card">
+  <h2>Ajouter une essence</h2>
+  <form method="POST">
+    <div class="form-grid">
+      <div><label>Nom de l'essence</label><input name="nom" required placeholder="Ex : Movingui (nouvelle essence)"></div>
+      <div><label>Masse volumique (kg/m³)</label><input type="number" step="1" name="masse_volumique_kg_m3" required></div>
+      <div><label>DME légal (cm)</label><input type="number" step="1" name="dme_cm" required></div>
+    </div>
+    <button type="submit">Ajouter au catalogue</button>
+  </form>
+</div>
+
+<div class="card">
+  <h2>Essences propres à votre société</h2>
+  {% if essences_societe %}
+  <table>
+    <thead><tr><th>Nom</th><th>Masse volumique (kg/m³)</th><th>DME (cm)</th></tr></thead>
+    <tbody>
+    {% for e in essences_societe %}
+      <tr><td><strong>{{ e.nom }}</strong></td><td>{{ e.masse_volumique_kg_m3 }}</td><td>{{ e.dme_cm }}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p style="color:var(--slate-light); font-size:13px;">Aucune essence spécifique ajoutée pour l'instant.</p>
+  {% endif %}
+</div>
+
+<div class="card">
+  <h2>Catalogue global (partagé par toutes les sociétés)</h2>
+  <table>
+    <thead><tr><th>Nom</th><th>Masse volumique (kg/m³)</th><th>DME (cm)</th></tr></thead>
+    <tbody>
+    {% for e in essences_globales %}
+      <tr><td>{{ e.nom }}</td><td>{{ e.masse_volumique_kg_m3 }}</td><td>{{ e.dme_cm }}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

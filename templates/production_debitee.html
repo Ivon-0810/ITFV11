@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Production débitée{% endblock %}
+{% block content %}
+<h1>Production débitée journalière</h1>
+<div class="subtitle">Colisage détaillé des sciages marchands finis, par dimension et qualité.</div>
+
+{% if session.role != 'AUDITEUR_CONTROLEUR' %}
+<div class="card">
+  <h2>Nouvelle production</h2>
+  <form method="POST">
+    <div class="form-grid">
+      <div><label>Date</label><input type="date" name="date_prod"></div>
+      <div><label>Quart</label><select name="quart"><option>MATIN</option><option>SOIR</option><option>NUIT</option></select></div>
+      <div><label>Équipe</label><input name="equipe"></div>
+      <div><label>N° Contrat</label><input name="contrat_numero"></div>
+      <div><label>Contrat</label><input name="contrat"></div>
+      <div><label>Ligne de production</label><input name="ligne_prod" placeholder="LIGNE 1..."></div>
+      <div><label>Certification</label><select name="certification"><option>ORD</option><option>FSC</option></select></div>
+      <div><label>N° code colis</label><input name="numero_code_colis"></div>
+      <div><label>N° colis emballage</label><input name="numero_colis_emballage"></div>
+      <div><label>Essence</label>
+        <select name="essence_id"><option value="">—</option>{% for e in essences %}<option value="{{ e.id }}">{{ e.nom }}</option>{% endfor %}</select>
+      </div>
+      <div><label>Type de séchage</label><select name="type_sechage"><option>AD</option><option>KD</option></select></div>
+      <div><label>Qualité</label><input name="qualite" placeholder="SECH, FAS..."></div>
+      <div><label>Pièces</label><input type="number" name="pieces"></div>
+      <div><label>Longueur (mm)</label><input type="number" step="0.1" name="longueur_mm"></div>
+      <div><label>Largeur (mm)</label><input type="number" step="0.1" name="largeur_mm"></div>
+      <div><label>Épaisseur (mm)</label><input type="number" step="0.1" name="epaisseur_mm"></div>
+    </div>
+    <button type="submit">Enregistrer</button>
+  </form>
+</div>
+{% endif %}
+
+<div class="card">
+  <div style="display:flex; justify-content:space-between; align-items:center;">
+    <h2 style="margin:0">Productions récentes</h2>
+    <div style="display:flex; gap:8px;">
+      <a class="btn btn-outline" href="{{ url_for('modele_excel', nom_rapport='production_debitee') }}">Modèle vierge</a>
+      <a class="btn btn-outline" href="{{ url_for('export_excel', nom_rapport='production_debitee') }}">Export Excel</a>
+    </div>
+  </div>
+  {% if session.role != 'AUDITEUR_CONTROLEUR' %}
+  <form method="POST" action="{{ url_for('import_excel_production_debitee') }}" enctype="multipart/form-data" class="inline-form" style="margin-top:12px;">
+    <input type="file" name="fichier" accept=".xlsx" required>
+    <button type="submit">Importer Excel</button>
+  </form>
+  {% endif %}
+  <table style="margin-top:14px">
+    <thead><tr><th>Date</th><th>Essence</th><th>Type</th><th>Dimensions</th><th>Pièces</th><th>Volume (m³)</th><th>Colis</th></tr></thead>
+    <tbody>
+    {% for l in lignes %}
+      <tr>
+        <td>{{ l.date_prod or '—' }}</td>
+        <td>{{ l.essence_nom or '—' }}</td>
+        <td>{{ l.type_sechage or '—' }}</td>
+        <td>{{ l.longueur_mm|default('—') }}×{{ l.largeur_mm|default('—') }}×{{ l.epaisseur_mm|default('—') }}</td>
+        <td>{{ l.pieces or '—' }}</td>
+        <td>{{ l.volume_m3 or '—' }}</td>
+        <td>{{ l.numero_code_colis or '—' }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

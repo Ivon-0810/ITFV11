@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Tronçonnage scierie{% endblock %}
+{% block content %}
+<h1>Tronçonnage — arrivée grumes scierie</h1>
+<div class="subtitle">Réception LVG au parc scierie et tronçonnage des grumes en billons.</div>
+
+{% if session.role != 'AUDITEUR_CONTROLEUR' %}
+<div class="card">
+  <h2>Nouvelle entrée</h2>
+  <form method="POST">
+    <div class="form-grid">
+      <div><label>Date d'arrivée</label><input type="date" name="date_arrivee"></div>
+      <div><label>N° LVG</label><input name="numero_lvg"></div>
+      <div><label>Provenance</label><input name="provenance"></div>
+      <div><label>Essence</label>
+        <select name="essence_id"><option value="">—</option>{% for e in essences %}<option value="{{ e.id }}">{{ e.nom }}</option>{% endfor %}</select>
+      </div>
+      <div><label>Certification</label>
+        <select name="certification"><option>ORD</option><option>FSC</option></select>
+      </div>
+      <div><label>Classe</label><input name="classe" placeholder="1PV, 2PV..."></div>
+      <div><label>Plaquette</label><input name="plaquette"></div>
+      <div><label>N° DF10 (si connu)</label><input name="numero_df10"></div>
+      <div><label>Longueur LV (m)</label><input type="number" step="0.01" name="longueur_lv_m"></div>
+      <div><label>Gros bout (cm)</label><input type="number" step="0.1" name="gb_lv_cm"></div>
+      <div><label>Petit bout (cm)</label><input type="number" step="0.1" name="pb_lv_cm"></div>
+      <div><label>Diamètre moyen (cm)</label><input type="number" step="0.1" name="dm_lv_cm"></div>
+      <div><label>Parc de stockage</label><input name="parc_stockage" value="SCIERIE"></div>
+      <div><label>Date de tronçonnage</label><input type="date" name="date_tronconnage"></div>
+      <div><label>Quart</label>
+        <select name="quart"><option>MATIN</option><option>SOIR</option><option>NUIT</option></select>
+      </div>
+      <div><label>Destination</label><input name="destination" value="SCIERIE"></div>
+      <div><label>État de la bille</label>
+        <select name="etat_bille"><option>TRONCONNE</option><option>EN ATTENTE</option></select>
+      </div>
+    </div>
+    <button type="submit">Enregistrer</button>
+  </form>
+</div>
+{% endif %}
+
+<div class="card">
+  <div style="display:flex; justify-content:space-between; align-items:center;">
+    <h2 style="margin:0">Entrées récentes</h2>
+    <div style="display:flex; gap:8px;">
+      <a class="btn btn-outline" href="{{ url_for('modele_excel', nom_rapport='tronconnage') }}">Modèle vierge</a>
+      <a class="btn btn-outline" href="{{ url_for('export_excel', nom_rapport='tronconnage') }}">Export Excel</a>
+    </div>
+  </div>
+  {% if session.role != 'AUDITEUR_CONTROLEUR' %}
+  <form method="POST" action="{{ url_for('import_excel_tronconnage') }}" enctype="multipart/form-data" class="inline-form" style="margin-top:12px;">
+    <input type="file" name="fichier" accept=".xlsx" required>
+    <button type="submit">Importer Excel</button>
+  </form>
+  {% endif %}
+  <table style="margin-top:14px">
+    <thead><tr><th>N° LVG</th><th>Essence</th><th>Plaquette</th><th>Volume LV (m³)</th><th>Parc</th><th>État</th></tr></thead>
+    <tbody>
+    {% for l in lignes %}
+      <tr>
+        <td>{{ l.numero_lvg or '—' }}</td>
+        <td>{{ l.essence_nom or '—' }}</td>
+        <td>{{ l.plaquette or '—' }}</td>
+        <td>{{ l.volume_lv_m3 or '—' }}</td>
+        <td>{{ l.parc_stockage or '—' }}</td>
+        <td>{{ l.etat_bille or '—' }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

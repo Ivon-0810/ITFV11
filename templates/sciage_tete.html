@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Sciage de tête{% endblock %}
+{% block content %}
+<h1>Sciage de tête</h1>
+<div class="subtitle">Transformation des billons en coursons.</div>
+
+{% if session.role != 'AUDITEUR_CONTROLEUR' %}
+<div class="card">
+  <h2>Nouveau sciage</h2>
+  <form method="POST">
+    <div class="form-grid">
+      <div><label>Date</label><input type="date" name="date_sciage"></div>
+      <div><label>Équipe</label><input name="equipe" placeholder="A, B..."></div>
+      <div><label>Plaquette</label><input name="plaquette"></div>
+      <div><label>N° DF10 (si connu)</label><input name="numero_df10"></div>
+      <div><label>Ordre billon</label><input name="ordre_billon"></div>
+      <div><label>Longueur finale (m)</label><input type="number" step="0.01" name="longueur_finale_m"></div>
+      <div><label>Longueur réelle (m)</label><input type="number" step="0.01" name="longueur_reelle_m"></div>
+      <div><label>Diamètre moyen (cm)</label><input type="number" step="0.1" name="diametre_moyen_cm"></div>
+      <div><label>Volume coursons (m³)</label><input type="number" step="0.001" name="volume_coursons_m3"></div>
+      <div><label>Essence</label>
+        <select name="essence_id"><option value="">—</option>{% for e in essences %}<option value="{{ e.id }}">{{ e.nom }}</option>{% endfor %}</select>
+      </div>
+      <div><label>Quart</label><select name="quart"><option>MATIN</option><option>SOIR</option><option>NUIT</option></select></div>
+    </div>
+    <button type="submit">Enregistrer</button>
+  </form>
+</div>
+{% endif %}
+
+<div class="card">
+  <div style="display:flex; justify-content:space-between; align-items:center;">
+    <h2 style="margin:0">Sciages récents</h2>
+    <div style="display:flex; gap:8px;">
+      <a class="btn btn-outline" href="{{ url_for('modele_excel', nom_rapport='sciage_tete') }}">Modèle vierge</a>
+      <a class="btn btn-outline" href="{{ url_for('export_excel', nom_rapport='sciage_tete') }}">Export Excel</a>
+    </div>
+  </div>
+  {% if session.role != 'AUDITEUR_CONTROLEUR' %}
+  <form method="POST" action="{{ url_for('import_excel_sciage_tete') }}" enctype="multipart/form-data" class="inline-form" style="margin-top:12px;">
+    <input type="file" name="fichier" accept=".xlsx" required>
+    <button type="submit">Importer Excel</button>
+  </form>
+  {% endif %}
+  <table style="margin-top:14px">
+    <thead><tr><th>Plaquette</th><th>Essence</th><th>Diamètre (cm)</th><th>Volume coursons (m³)</th><th>Équipe</th><th>Quart</th></tr></thead>
+    <tbody>
+    {% for l in lignes %}
+      <tr>
+        <td>{{ l.plaquette or '—' }}</td>
+        <td>{{ l.essence_nom or '—' }}</td>
+        <td>{{ l.diametre_moyen_cm or '—' }}</td>
+        <td>{{ l.volume_coursons_m3 or '—' }}</td>
+        <td>{{ l.equipe or '—' }}</td>
+        <td>{{ l.quart or '—' }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

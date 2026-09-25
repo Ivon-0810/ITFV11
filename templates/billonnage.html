@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Billonnage{% endblock %}
+{% block content %}
+<h1>Billonnage</h1>
+<div class="subtitle">Numérotation et cubage des billons issus du tronçonnage.</div>
+
+{% if session.role != 'AUDITEUR_CONTROLEUR' %}
+<div class="card">
+  <h2>Nouveau billon</h2>
+  <form method="POST">
+    <div class="form-grid">
+      <div><label>Date</label><input type="date" name="date_billonnage"></div>
+      <div><label>Certif.</label><select name="certif"><option>ORD</option><option>FSC</option></select></div>
+      <div><label>Lot séq. CB</label><input name="lot_seq_cb"></div>
+      <div><label>Ordre séq. CB</label><input name="ordre_seq_cb"></div>
+      <div><label>Ordre coursons</label><input name="ordre_coursons"></div>
+      <div><label>Plaquette</label><input name="plaquette"></div>
+      <div><label>Longueur (cm)</label><input type="number" step="0.1" name="longueur_cm"></div>
+      <div><label>Ordre billon</label><input name="ordre_billon" placeholder="A, B, C..."></div>
+      <div><label>Essence</label>
+        <select name="essence_id"><option value="">—</option>{% for e in essences %}<option value="{{ e.id }}">{{ e.nom }}</option>{% endfor %}</select>
+      </div>
+      <div><label>N° DF10 (si connu)</label><input name="numero_df10"></div>
+      <div><label>Code courson</label><input name="code_courson"></div>
+      <div><label>Diamètre moyen (cm)</label><input type="number" step="0.1" name="diametre_moyen_cm"></div>
+      <div><label>Code barre billon</label><input name="code_barre_billon"></div>
+    </div>
+    <button type="submit">Enregistrer</button>
+  </form>
+</div>
+{% endif %}
+
+<div class="card">
+  <div style="display:flex; justify-content:space-between; align-items:center;">
+    <h2 style="margin:0">Billons récents</h2>
+    <div style="display:flex; gap:8px;">
+      <a class="btn btn-outline" href="{{ url_for('modele_excel', nom_rapport='billonnage') }}">Modèle vierge</a>
+      <a class="btn btn-outline" href="{{ url_for('export_excel', nom_rapport='billonnage') }}">Export Excel</a>
+    </div>
+  </div>
+  {% if session.role != 'AUDITEUR_CONTROLEUR' %}
+  <form method="POST" action="{{ url_for('import_excel_billonnage') }}" enctype="multipart/form-data" class="inline-form" style="margin-top:12px;">
+    <input type="file" name="fichier" accept=".xlsx" required>
+    <button type="submit">Importer Excel</button>
+  </form>
+  {% endif %}
+  <table style="margin-top:14px">
+    <thead><tr><th>Plaquette</th><th>Ordre billon</th><th>Essence</th><th>Diamètre (cm)</th><th>Volume (m³)</th><th>Code barre</th></tr></thead>
+    <tbody>
+    {% for l in lignes %}
+      <tr>
+        <td>{{ l.plaquette or '—' }}</td>
+        <td>{{ l.ordre_billon or '—' }}</td>
+        <td>{{ l.essence_nom or '—' }}</td>
+        <td>{{ l.diametre_moyen_cm or '—' }}</td>
+        <td>{{ l.volume_m3 or '—' }}</td>
+        <td>{{ l.code_barre_billon or '—' }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
